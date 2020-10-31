@@ -14,14 +14,14 @@ public class BresenhamLineDrawer implements LineDrawer {
 
     @Override
     public void drawLine(ScreenPoint p1, ScreenPoint p2) {
-        int x1 = p1.getX();
-        int y1 = p1.getY();
-        int x2 = p2.getX();
-        int y2 = p2.getY();
+        double x1 = p1.getX();
+        double y1 = p1.getY();
+        double x2 = p2.getX();
+        double y2 = p2.getY();
 
 
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
+        int dx = (int)(Math.abs(x2 - x1));
+        int dy = (int)(Math.abs(y2 - y1));
 
         int d0 = 0;
         if (dx > dy) {

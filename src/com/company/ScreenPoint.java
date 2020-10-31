@@ -1,19 +1,19 @@
 package com.company;
 
 public class ScreenPoint {
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private int width;
     private int height;
     private int startAngle;
     private int arcAngle;
 
-    public ScreenPoint(int x, int y) {
+    public ScreenPoint(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public ScreenPoint(int x, int y, int width, int height, int startAngle, int arcAngle) {
+    public ScreenPoint(double x, double y, int width, int height, int startAngle, int arcAngle) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -38,11 +38,11 @@ public class ScreenPoint {
         return arcAngle;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 }

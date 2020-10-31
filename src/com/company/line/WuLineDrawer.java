@@ -7,20 +7,21 @@ import java.awt.*;
 
 public class WuLineDrawer implements LineDrawer{
     private PixelDrawer pd;
-    private int xStart, xFinish, yStart, yFinish;
+    private double xStart, xFinish, yStart, yFinish;
 
     public WuLineDrawer(PixelDrawer pd) {
         this.pd = pd;
     }
     @Override
     public void drawLine(ScreenPoint p1, ScreenPoint p2) {
-        int x1 = p1.getX();
-        int y1 = p1.getY();
-        int x2 = p2.getX();
-        int y2 = p2.getY();
+        double x1 = p1.getX();
+        double y1 = p1.getY();
+        double x2 = p2.getX();
+        double y2 = p2.getY();
 
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
+
+        int dx = (int)(Math.abs(x2 - x1));
+        int dy = (int)(Math.abs(y2 - y1));
 
         int count = 1;
         int d0 = 0;
@@ -62,7 +63,7 @@ public class WuLineDrawer implements LineDrawer{
             }
         }
     }
-    public void drawPixelAsWu(int x1, int y1, int x2, int y2, int dx, int dy, int d0, int count) {
+    public void drawPixelAsWu(double x1, double y1, double x2, double y2, int dx, int dy, int d0, int count) {
         int d;
         boolean replace = dx > dy;
         if (replace) {
