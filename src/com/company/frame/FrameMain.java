@@ -56,14 +56,14 @@ public class FrameMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    int[] x = readIntArrayFromJTable(tableInputX);
-                    int[] y = readIntArrayFromJTable(tableInputY);
-                    int n = (int) spinnerN.getValue();
-
-                    RoundedPolygon.readArrayFromFrame(x);
-                    RoundedPolygon.readArrayFromFrame(y);
-                    RoundedPolygon.readNumberFromFrame(n);
-                    DrawPanel dr = new DrawPanel();
+//                    int[] x = readIntArrayFromJTable(tableInputX);
+//                    int[] y = readIntArrayFromJTable(tableInputY);
+//                    int n = (int) spinnerN.getValue();
+//
+//                    RoundedPolygon.readArrayFromFrame(x);
+//                    RoundedPolygon.readArrayFromFrame(y);
+//                    RoundedPolygon.readNumberFromFrame(n);
+//                    DrawPanel dr = new DrawPanel();
 
                 } catch (Exception e) {
                     SwingUtils.showErrorMessageBox(e);

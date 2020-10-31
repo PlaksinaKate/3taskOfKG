@@ -13,28 +13,31 @@ import com.company.pixel.PixelDrawer;
 
 import java.awt.*;
 
-public class RoundedPolygon{
+public class RoundedPolygon implements FigureDrawer {
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4, 800, 600);
     int[] xFromFrame;
     int[] yFromFrame;
     int nFromFrame;
 
+    int[] x = {-1, 2, 5};
+    int[] y = {-2, 2, 1};
+    int n = 3;
     Graphics g;
     //private GraphicsArcDrawer ga = g;
     private Graphics2D gr = (Graphics2D) g;
 
-//    public void addValue(int[] x, int[] y, int n) {
+    //    public void addValue(int[] x, int[] y, int n) {
 //
 //    }
-
+    @Override
     public void drawRoundedPolygon(ScreenConverter sc, PixelDrawer pd) {
-        int[] x;
-        int[] y;
-        int n;
+//        int[] x;
+//        int[] y;
+//        int n;
 
-        x = readArrayFromFrame(xFromFrame);
-        y = readArrayFromFrame(yFromFrame);
-        n = readNumberFromFrame(nFromFrame);
+//        x = readArrayFromFrame(xFromFrame);
+//        y = readArrayFromFrame(yFromFrame);
+//        n = readNumberFromFrame(nFromFrame);
 
         double s1 = x[0] * y[1];
         double s2 = y[0] * x[1];
@@ -155,7 +158,7 @@ public class RoundedPolygon{
 
     }
 
-    public static  int[] readArrayFromFrame(int[] x) {
+    public static int[] readArrayFromFrame(int[] x) {
         return x;
     }
 
@@ -167,7 +170,7 @@ public class RoundedPolygon{
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
 
-
+    @Override
     public void moveMarker(RealPoint from, RealPoint to) {
 
     }
