@@ -79,7 +79,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         //drawRoundedPolygon(ld, x, y);
 
         RoundedPolygon rd = new RoundedPolygon();
-        rd.drawRoundedPolygon(sc, pd);
+       // rd.drawRoundedPolygon(sc, ld, ad);
 
         g.drawImage(bi, 0, 0, null);
 

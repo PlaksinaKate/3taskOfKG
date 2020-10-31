@@ -13,7 +13,7 @@ import com.company.pixel.PixelDrawer;
 
 import java.awt.*;
 
-public class RoundedPolygon implements FigureDrawer {
+public class RoundedPolygon {
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4, 800, 600);
     int[] xFromFrame;
     int[] yFromFrame;
@@ -29,8 +29,8 @@ public class RoundedPolygon implements FigureDrawer {
     //    public void addValue(int[] x, int[] y, int n) {
 //
 //    }
-    @Override
-    public void drawRoundedPolygon(ScreenConverter sc, PixelDrawer pd) {
+
+    public void drawRoundedPolygon(ScreenConverter sc, LineDrawer ld, ArcDrawer ad) {
 //        int[] x;
 //        int[] y;
 //        int n;
@@ -139,7 +139,6 @@ public class RoundedPolygon implements FigureDrawer {
 
             Line line1 = new Line(x1, y1, p1Cross.getX(), p1Cross.getY());
             Line line2 = new Line(p2Cross.getX(), p2Cross.getY(), x3, y3);
-            LineDrawer ld = new WuLineDrawer(pd);
             drawLine(ld, line1);
             drawLine(ld, line2);
 
@@ -148,8 +147,7 @@ public class RoundedPolygon implements FigureDrawer {
             int diameter = (int) (2 * radius);
 
             ScreenPoint pForArc = new ScreenPoint(left, top, diameter, diameter, (int) (sweepAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
-            //ArcDrawer ga = new GraphicsArcDrawer(gr);
-            //ga.drawArc(pForArc);
+            ad.drawArc(pForArc);
 
 //            ArcDrawer ga = new BresenhamArcDrawer(pd);
 //            ga.drawArc(pForArc);
@@ -170,7 +168,7 @@ public class RoundedPolygon implements FigureDrawer {
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
 
-    @Override
+
     public void moveMarker(RealPoint from, RealPoint to) {
 
     }
