@@ -1,6 +1,8 @@
 package com.company;
 
 import com.company.arc.Arc;
+import com.company.arc.ArcDrawer;
+import com.company.arc.GraphicsArcDrawer;
 import com.company.figure.RoundedPolygon;
 import com.company.line.Line;
 import com.company.line.LineDrawer;
@@ -19,9 +21,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private Line xAxis = new Line(-5, 0, 5, 0);
     private Line yAxis = new Line(0, -5, 0, 5);
 
-    //private Arc arc = new Arc(1, 1, 5, 5, 0, 80);
-//private GraphicsArcDrawer arc = new GraphicsArcDrawer();
-
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4, 800, 600);
 
     private ArrayList<Line> allLines = new ArrayList<>();
@@ -37,6 +36,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void paint(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
         sc.setScreenWidth(getWidth());
         sc.setScreenHeight(getHeight());
         BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -62,24 +62,10 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
         }
 
+        ArcDrawer ad = new GraphicsArcDrawer(g2d);
+        RoundedPolygon rp = new RoundedPolygon();
+        rp.drawRoundedPolygon(sc, ld, ad);
 
-        //находим радиус окружности
-        // double
-        //drawRoundedPolygon(ld);
-//        ArcDrawer ad = new BresenhamArcDrawer(pd);
-//        drawArc(ad, arc);
-//
-//        for (Arc a : allArcs) {
-//            drawArc(ad, a);
-//        }
-//
-//        if (currentNewArc != null) {
-//            drawArc(ad, currentNewArc);
-//        }
-        //drawRoundedPolygon(ld, x, y);
-
-        RoundedPolygon rd = new RoundedPolygon();
-       // rd.drawRoundedPolygon(sc, ld, ad);
 
         g.drawImage(bi, 0, 0, null);
 
@@ -91,9 +77,10 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
 
-//    private void drawArc(ArcDrawer ad, Arc arc) {
-//        ad.drawArc(scForArc.r2sForArc(arc.getP()));
+//    private void drawRoundedPolygon(LineDrawer ld, ArcDrawer ad, RoundedPolygon rp) {
+//        rp.drawRoundedPolygon(sc., ld, ad);
 //    }
+
 
     private ScreenPoint lastPosition = null;
 
