@@ -8,52 +8,57 @@ import com.company.arc.ArcInfo;
 import com.company.line.Line;
 import com.company.line.LineDrawer;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RoundedPolygon {
-
-
-    int[] x = {-1, 2, 5};
-    int[] y = {-2, 2, 1};
+    ArrayList<RealPoint> tops = new ArrayList<>();
     double r = 0.5;
 
     public void drawRoundedPolygon(ScreenConverter sc, LineDrawer ld, ArcDrawer ad) {
+        RealPoint pd1 = new RealPoint(-1, -2);
+        RealPoint pd2 = new RealPoint(2, 2);
+        RealPoint pd3 = new RealPoint(5, 1);
+        tops.add(pd1);
+        tops.add(pd2);
+        tops.add(pd3);
 
         Map<Integer, Double> mX = new HashMap<>();
         Map<Integer, Double> mY = new HashMap<>();
         int count = 0;
 
-        for (int i = 0; i < x.length; i++) {
+        for (int i = 0; i < tops.size(); i++) {
 
-            int x1;
-            int y1;
-            int x2;
-            int y2;
-            int x3;
-            int y3;
+            double x1;
+            double y1;
+            double x2;
+            double y2;
+            double x3;
+            double y3;
 
             if (i == 0) {
-                x1 = x[x.length - 1];
-                y1 = y[x.length - 1];
-                x2 = x[i];
-                y2 = y[i];
-                x3 = x[i + 1];
-                y3 = y[i + 1];
-            } else if (i == x.length - 1) {
-                x1 = x[i - 1];
-                y1 = y[i - 1];
-                x2 = x[i];
-                y2 = y[i];
-                x3 = x[0];
-                y3 = y[0];
+                x1 = tops.get(tops.size() - 1).getX();
+                y1 = tops.get(tops.size() - 1).getY();
+                x2 = tops.get(i).getX();
+                y2 = tops.get(i).getY();
+                x3 = tops.get(i + 1).getX();
+                y3 = tops.get(i + 1).getY();
+            } else if (i == tops.size() - 1) {
+                x1 = tops.get(i - 1).getX();
+                y1 = tops.get(i - 1).getY();
+                x2 = tops.get(i).getX();
+                y2 = tops.get(i).getY();
+                x3 = tops.get(0).getX();
+                y3 = tops.get(0).getY();
             } else {
-                x1 = x[i - 1];
-                y1 = y[i - 1];
-                x2 = x[i];
-                y2 = y[i];
-                x3 = x[i + 1];
-                y3 = y[i + 1];
+                x1 = tops.get(i - 1).getX();
+                y1 = tops.get(i - 1).getY();
+                x2 = tops.get(i).getX();
+                y2 = tops.get(i).getY();
+                x3 = tops.get(i + 1).getX();
+                y3 = tops.get(i + 1).getY();
             }
 
 
@@ -118,10 +123,10 @@ public class RoundedPolygon {
             int top = (int) (circlePointY - r);
             int diameter = (int) (2 * r);
 
-            ArcInfo pForArc = new ArcInfo(left, top, diameter, diameter, (int) (sweepAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
-            ad.drawArc();
-            ad.drawArc(pForArc);
-            //ad.drawArc(sc.r2s(pForArc.getP()));
+            RealPoint pCoordinate = new RealPoint(left, top);
+            RealPoint pR = new RealPoint(diameter, diameter);
+            ArcInfo p = new ArcInfo(sc.r2s(pCoordinate).getX(), sc.r2s(pCoordinate).getY(), sc.r2s(pR).getX(), sc.r2s(pR).getY(), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
+            ad.drawArc(p);
         }
         for (int i = 1; i <= mX.size(); i = i + 2) {
             Line l;
@@ -139,5 +144,21 @@ public class RoundedPolygon {
 
     public void moveMarker(RealPoint from, RealPoint to) {
 
+    }
+
+    public ArrayList<RealPoint> getTops() {
+        return tops;
+    }
+
+    public void setTops(ArrayList<RealPoint> tops) {
+        this.tops = tops;
+    }
+
+    public double getR() {
+        return r;
+    }
+
+    public void setR(double r) {
+        this.r = r;
     }
 }

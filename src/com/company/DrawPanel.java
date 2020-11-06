@@ -17,16 +17,17 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class DrawPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
-    private Graphics g;
-    private Line xAxis = new Line(-5, 0, 5, 0);
-    private Line yAxis = new Line(0, -5, 0, 5);
-
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4, 800, 600);
+
+    private Line xAxis = new Line(sc.getCornerX() - sc.getScreenWidth(), 0, sc.getScreenWidth(), 0);
+    private Line yAxis = new Line(0, sc.getCornerY() - sc.getScreenHeight(), 0, sc.getScreenHeight());
+
 
     private ArrayList<Line> allLines = new ArrayList<>();
     private Line currentNewLine = null;
-    private ArrayList<Arc> allArcs = new ArrayList<>();
-    private Arc currentNewArc = null;
+
+    private ArrayList<RoundedPolygon> allRP = new ArrayList<>();
+    private RoundedPolygon currentNewRoundedPolygon = null;
 
     public DrawPanel() {
         this.addMouseMotionListener(this);
@@ -36,7 +37,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+        //Graphics2D g2d = (Graphics2D) g;
         sc.setScreenWidth(getWidth());
         sc.setScreenHeight(getHeight());
         BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -52,19 +53,42 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         drawLine(ld, xAxis);
         drawLine(ld, yAxis);
 
-        for (Line l : allLines) {
-            drawLine(ld, l);
+//        for (Line l : allLines) {
+//            drawLine(ld, l);
+//        }
+//
+//        if (currentNewLine != null) {
+//            drawLine(ld, currentNewLine);
+//
+//
+//        }
+
+
+        g.setColor(Color.BLUE);
+        for (int i = 0; i < getWidth(); i++) {
+            g.drawString(String.valueOf(i), i, -1);
+        }
+        for (int i = 0; i < getHeight(); i++) {
+            g.drawString(String.valueOf(i), 0, i);
+        }
+        for (int i = 0; i > -getHeight(); i--) {
+            g.drawString(String.valueOf(i), 0, i);
+        }
+        for (int i = 0; i > -getWidth(); i--) {
+            g.drawString(String.valueOf(i), i, 0);
         }
 
-        if (currentNewLine != null) {
-            drawLine(ld, currentNewLine);
-
-
-        }
-
-        ArcDrawer ad = new GraphicsArcDrawer(g2d);
+        g.setColor(Color.BLUE);
+        ArcDrawer ad = new GraphicsArcDrawer(g);
         RoundedPolygon rp = new RoundedPolygon();
         rp.drawRoundedPolygon(sc, ld, ad);
+
+        for (RoundedPolygon roundedP : allRP) {
+            rp.drawRoundedPolygon(sc, ld, ad);
+        }
+//        if (currentNewRoundedPolygon != null) {
+//            rp.drawRoundedPolygon(sc, ld, ad);
+//        }
 
 
         g.drawImage(bi, 0, 0, null);
@@ -72,10 +96,29 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+//    public void drawCoordinates(Graphics g2d) {
+//        g2d.setColor(Color.BLUE);
+//        for (int i = 0; i < getWidth(); i++) {
+//            g2d.drawString(String.valueOf(i), i, -1);
+//        }
+//        for (int i = 0; i < getHeight(); i++) {
+//            g2d.drawString(String.valueOf(i), 0, i);
+//        }
+//        for (int i = 0; i > -getHeight(); i--) {
+//            g2d.drawString(String.valueOf(i), 0, i);
+//        }
+//        for (int i = 0; i > -getWidth(); i--) {
+//            g2d.drawString(String.valueOf(i), i, 0);
+//        }
+//    }
+
 
     private void drawLine(LineDrawer ld, Line l) {
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
+//    private void drawRoundedPolygon(LineDrawer ld, Line l) {
+//        ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
+//    }
 
 //    private void drawRoundedPolygon(LineDrawer ld, ArcDrawer ad, RoundedPolygon rp) {
 //        rp.drawRoundedPolygon(sc., ld, ad);
@@ -104,8 +147,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = null;
         } else if (e.getButton() == MouseEvent.BUTTON1) {
-            allLines.add(currentNewLine);
-            currentNewLine = null;
+            allRP.add(currentNewRoundedPolygon);
+            currentNewRoundedPolygon = null;
         }
         repaint();
     }

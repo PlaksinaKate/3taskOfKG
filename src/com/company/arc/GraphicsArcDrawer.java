@@ -14,14 +14,20 @@ public class GraphicsArcDrawer implements ArcDrawer {
 
     @Override
     public void drawArc(ArcInfo p) {
-        int x = (int) p.getX();
-        int y = (int) p.getY();
+        int x = (int) p.getP().getX();
+        int y = (int) p.getP().getY();
         int width = p.getWidth();
         int height = p.getHeight();
         int startAngle = p.getStartAngle();
         int arcAngle = p.getArcAngle();
-        g.setColor(Color.BLUE);
-        g.drawArc( x, y, width, height, startAngle, arcAngle);
+        g.drawArc(x, y, width, height, startAngle, arcAngle);
     }
 
+//    @Override
+//    public void drawArc(ScreenPoint p, int width, int height, int startAngle, int arcAngle) {
+//        int x=p.getX();
+//        int y=p.getY();
+//        g.setColor(Color.BLUE);
+//        g.drawArc( x, y, width, height, startAngle, arcAngle);
+//    }
 }
