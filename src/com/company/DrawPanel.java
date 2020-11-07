@@ -4,6 +4,7 @@ import com.company.arc.Arc;
 import com.company.arc.ArcDrawer;
 import com.company.arc.GraphicsArcDrawer;
 import com.company.figure.RoundedPolygon;
+import com.company.line.DDALineDrawer;
 import com.company.line.Line;
 import com.company.line.LineDrawer;
 import com.company.line.WuLineDrawer;
@@ -14,6 +15,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class DrawPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
@@ -37,7 +39,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void paint(Graphics g) {
-        //Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g;
         sc.setScreenWidth(getWidth());
         sc.setScreenHeight(getHeight());
         BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -45,7 +47,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         Graphics gr = bi.createGraphics();
         gr.setColor(Color.WHITE);
         gr.fillRect(0, 0, getWidth(), getHeight());
-        gr.dispose();
 
         PixelDrawer pd = new BufferedImagePixelDrawer(bi);
 
@@ -63,25 +64,14 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 //
 //        }
 
+        drawSegments(gr);
 
-        g.setColor(Color.BLUE);
-        for (int i = 0; i < getWidth(); i++) {
-            g.drawString(String.valueOf(i), i, -1);
-        }
-        for (int i = 0; i < getHeight(); i++) {
-            g.drawString(String.valueOf(i), 0, i);
-        }
-        for (int i = 0; i > -getHeight(); i--) {
-            g.drawString(String.valueOf(i), 0, i);
-        }
-        for (int i = 0; i > -getWidth(); i--) {
-            g.drawString(String.valueOf(i), i, 0);
-        }
 
-        g.setColor(Color.BLUE);
-        ArcDrawer ad = new GraphicsArcDrawer(g);
+        g2d.setColor(Color.BLUE);
+        ArcDrawer ad = new GraphicsArcDrawer(gr);
         RoundedPolygon rp = new RoundedPolygon();
         rp.drawRoundedPolygon(sc, ld, ad);
+        gr.dispose();
 
         for (RoundedPolygon roundedP : allRP) {
             rp.drawRoundedPolygon(sc, ld, ad);
@@ -92,30 +82,49 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
 
         g.drawImage(bi, 0, 0, null);
-
-
     }
-
-//    public void drawCoordinates(Graphics g2d) {
-//        g2d.setColor(Color.BLUE);
-//        for (int i = 0; i < getWidth(); i++) {
-//            g2d.drawString(String.valueOf(i), i, -1);
-//        }
-//        for (int i = 0; i < getHeight(); i++) {
-//            g2d.drawString(String.valueOf(i), 0, i);
-//        }
-//        for (int i = 0; i > -getHeight(); i--) {
-//            g2d.drawString(String.valueOf(i), 0, i);
-//        }
-//        for (int i = 0; i > -getWidth(); i--) {
-//            g2d.drawString(String.valueOf(i), i, 0);
-//        }
-//    }
 
 
     private void drawLine(LineDrawer ld, Line l) {
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
+
+    private void drawSegments(Graphics g) {
+        g.setColor(Color.BLUE);
+        double step = sc.getRealWidth() / 4;
+        for (double x = 0; x <= sc.getRealWidth() + Math.abs(sc.getScreenWidth()); x += step) {
+            ScreenPoint point = sc.r2s(new RealPoint(x, 0));
+            ScreenPoint oppositePoint = sc.r2s(new RealPoint(-x, 0));
+            if (step >= 1) {
+                g.drawString(String.valueOf((int) x), point.getX(), point.getY());
+                g.drawString(String.valueOf((int) -x), oppositePoint.getX(), oppositePoint.getY());
+            } else {
+                String pattern = "#.#";
+                DecimalFormat f = new DecimalFormat(pattern);
+                String value = f.format(x).equals("0") ? "0" : f.format(x);
+                g.drawString(value, point.getX(), point.getY());
+                g.drawString(value, oppositePoint.getX(), oppositePoint.getY());
+            }
+        }
+
+        step = sc.getRealHeight() / 4;
+        for (double y = 0; y <= sc.getRealHeight() + Math.abs(sc.getScreenHeight()); y += step) {
+            ScreenPoint point = sc.r2s(new RealPoint(0, y));
+            ScreenPoint oppositePoint = sc.r2s(new RealPoint(0, -y));
+            if (step >= 1) {
+                g.drawString(String.valueOf((int) y), point.getX(), point.getY());
+                g.drawString(String.valueOf((int) -y), oppositePoint.getX(), oppositePoint.getY());
+            } else {
+                String pattern = "#.#";
+                DecimalFormat f = new DecimalFormat(pattern);
+                String value = f.format(y).equals("0") ? "0" : f.format(y);
+                g.drawString(value, point.getX(), point.getY());
+                g.drawString(value, oppositePoint.getX(), oppositePoint.getY());
+            }
+        }
+    }
+
+
 //    private void drawRoundedPolygon(LineDrawer ld, Line l) {
 //        ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
 //    }

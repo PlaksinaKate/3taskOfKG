@@ -15,15 +15,17 @@ import java.util.Map;
 
 public class RoundedPolygon {
     ArrayList<RealPoint> tops = new ArrayList<>();
-    double r = 0.5;
+    double r = 0.1;
 
     public void drawRoundedPolygon(ScreenConverter sc, LineDrawer ld, ArcDrawer ad) {
-        RealPoint pd1 = new RealPoint(-1, -2);
-        RealPoint pd2 = new RealPoint(2, 2);
-        RealPoint pd3 = new RealPoint(5, 1);
+        RealPoint pd1 = new RealPoint(-1, -1);
+        RealPoint pd2 = new RealPoint(1, 1);
+        RealPoint pd3 = new RealPoint(2, 1);
+        RealPoint pd4 = new RealPoint(2, -2);
         tops.add(pd1);
         tops.add(pd2);
         tops.add(pd3);
+        tops.add(pd4);
 
         Map<Integer, Double> mX = new HashMap<>();
         Map<Integer, Double> mY = new HashMap<>();
@@ -123,7 +125,7 @@ public class RoundedPolygon {
             int top = (int) (circlePointY - r);
             int diameter = (int) (2 * r);
 
-            RealPoint pCoordinate = new RealPoint(left, top);
+            RealPoint pCoordinate = new RealPoint(p1X, p1Y);
             RealPoint pR = new RealPoint(diameter, diameter);
             ArcInfo p = new ArcInfo(sc.r2s(pCoordinate).getX(), sc.r2s(pCoordinate).getY(), sc.r2s(pR).getX(), sc.r2s(pR).getY(), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
             ad.drawArc(p);
