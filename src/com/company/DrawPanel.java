@@ -14,6 +14,7 @@ import com.company.pixel.PixelDrawer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private Line xAxis = new Line(sc.getCornerX() - sc.getScreenWidth(), 0, sc.getScreenWidth(), 0);
     private Line yAxis = new Line(0, sc.getCornerY() - sc.getScreenHeight(), 0, sc.getScreenHeight());
 
+    private ArrayList<RealPoint> coordinates = new ArrayList<>();
 
     private ArrayList<Line> allLines = new ArrayList<>();
     private Line currentNewLine = null;
@@ -54,28 +56,27 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         drawLine(ld, xAxis);
         drawLine(ld, yAxis);
 
-//        for (Line l : allLines) {
-//            drawLine(ld, l);
-//        }
-//
-//        if (currentNewLine != null) {
-//            drawLine(ld, currentNewLine);
-//
-//
-//        }
+        for (Line l : allLines) {
+            drawLine(ld, l);
+        }
+
+        if (currentNewLine != null) {
+            drawLine(ld, currentNewLine);
+        }
 
         drawSegments(gr);
 
 
-        g2d.setColor(Color.BLUE);
-        ArcDrawer ad = new GraphicsArcDrawer(gr);
-        RoundedPolygon rp = new RoundedPolygon();
-        rp.drawRoundedPolygon(sc, ld, ad);
+//        g2d.setColor(Color.BLUE);
+//        ArcDrawer ad = new GraphicsArcDrawer(gr);
+//        RoundedPolygon rp = new RoundedPolygon();
+//        //rp.drawRoundedPolygon(sc, ld, ad, coordinates);
+//        rp.drawRoundedPolygon(sc, ld, ad);
         gr.dispose();
 
-        for (RoundedPolygon roundedP : allRP) {
-            rp.drawRoundedPolygon(sc, ld, ad);
-        }
+//        for (RoundedPolygon roundedP : allRP) {
+//            rp.drawRoundedPolygon(sc, ld, ad, coordinates);
+//        }
 //        if (currentNewRoundedPolygon != null) {
 //            rp.drawRoundedPolygon(sc, ld, ad);
 //        }
@@ -125,29 +126,30 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-//    private void drawRoundedPolygon(LineDrawer ld, Line l) {
-//        ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
-//    }
-
-//    private void drawRoundedPolygon(LineDrawer ld, ArcDrawer ad, RoundedPolygon rp) {
-//        rp.drawRoundedPolygon(sc., ld, ad);
-//    }
-
-
     private ScreenPoint lastPosition = null;
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        if (coordinates.isEmpty()) {
+            coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+        } else {
+            RealPoint prev = coordinates.get(coordinates.size() - 1);
+            currentNewLine = new Line(prev, sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+            coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+        }
+//        RealPoint last = coordinates.get(coordinates.size() - 1);
+//        RealPoint first = coordinates.get(1);
+//        currentNewLine = new Line(last, first);
+        repaint();
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.getButton() == MouseEvent.BUTTON3)
             lastPosition = new ScreenPoint(e.getX(), e.getY());
-        } else if (e.getButton() == MouseEvent.BUTTON1) {
-            currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())), sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-        }
+//        } else if (e.getButton() == MouseEvent.BUTTON1) {
+//            currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())), sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+//        }
         repaint();
     }
 
@@ -156,8 +158,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = null;
         } else if (e.getButton() == MouseEvent.BUTTON1) {
-            allRP.add(currentNewRoundedPolygon);
-            currentNewRoundedPolygon = null;
+            allLines.add(currentNewLine);
+            currentNewLine = null;
         }
         repaint();
     }

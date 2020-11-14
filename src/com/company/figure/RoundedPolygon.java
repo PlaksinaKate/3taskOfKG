@@ -2,30 +2,29 @@ package com.company.figure;
 
 import com.company.RealPoint;
 import com.company.ScreenConverter;
-import com.company.ScreenPoint;
 import com.company.arc.ArcDrawer;
 import com.company.arc.ArcInfo;
 import com.company.line.Line;
 import com.company.line.LineDrawer;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RoundedPolygon {
     ArrayList<RealPoint> tops = new ArrayList<>();
+    //private ArrayList<RealPoint> coordinates = new ArrayList<>();
     double r = 0.1;
 
     public void drawRoundedPolygon(ScreenConverter sc, LineDrawer ld, ArcDrawer ad) {
         RealPoint pd1 = new RealPoint(-1, -1);
-        RealPoint pd2 = new RealPoint(1, 1);
-        RealPoint pd3 = new RealPoint(2, 1);
-        RealPoint pd4 = new RealPoint(2, -2);
+        RealPoint pd2 = new RealPoint(-1, 1);
+        RealPoint pd3 = new RealPoint(5, 1);
+//        //RealPoint pd4 = new RealPoint(2, -2);
         tops.add(pd1);
         tops.add(pd2);
         tops.add(pd3);
-        tops.add(pd4);
+        //tops.add(pd4);
 
         Map<Integer, Double> mX = new HashMap<>();
         Map<Integer, Double> mY = new HashMap<>();
@@ -96,18 +95,19 @@ public class RoundedPolygon {
             double dy = y2 * 2 - p1Y - p2Y;
 
 
-            double l = Math.sqrt(dx * dx - dy * dy);
-            double d = Math.sqrt(segment * segment - r * r);
+            double l = Math.sqrt(dx * dx + dy * dy);
+            double d = Math.sqrt(segment * segment + r * r);
 
             double circlePointX = x2 - dx * d / l;
             double circlePointY = y2 - dy * d / l;
 
             double startAngle = Math.atan2(p1Y - circlePointY, p1X - circlePointX);
-            double arcAngle = Math.atan2(p2Y - circlePointY, p2X - circlePointX);
-            double sweepAngle = arcAngle - startAngle;
+            double endAngle = Math.atan2(p2Y - circlePointY, p2X - circlePointX);
+
+            double sweepAngle = endAngle - startAngle;
 
             if (sweepAngle < 0) {
-                startAngle = arcAngle;
+                startAngle = endAngle;
                 sweepAngle = -sweepAngle;
             }
 
@@ -121,13 +121,51 @@ public class RoundedPolygon {
             mX.put(count, p2X);
             mY.put(count, p2Y);
 
-            int left = (int) (circlePointX - r);
-            int top = (int) (circlePointY - r);
-            int diameter = (int) (2 * r);
+            double left = circlePointX - r;
+            double top = circlePointY - r;
 
-            RealPoint pCoordinate = new RealPoint(p1X, p1Y);
-            RealPoint pR = new RealPoint(diameter, diameter);
-            ArcInfo p = new ArcInfo(sc.r2s(pCoordinate).getX(), sc.r2s(pCoordinate).getY(), sc.r2s(pR).getX(), sc.r2s(pR).getY(), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
+            //RealPoint pCoordinate = new RealPoint(left, top);
+            RealPoint pCoordinate = null;
+//            if (dx > dy) {
+//                if (p1X > 0 || p1Y > 0) {
+//                    pCoordinate = new RealPoint(p1X - r, p1Y);
+//                } else {
+//                    pCoordinate = new RealPoint(p1X - r, p1Y - r);
+//                }
+//            } else {
+//                if (p1X > 0 || p1Y > 0) {
+//                    pCoordinate = new RealPoint(p1X-r, p1Y - r);
+//                } else {
+//                    pCoordinate = new RealPoint(p1X - r, p1Y + 2 * r);
+//                }
+//            }
+            if (p1X > 0 && p1Y > 0) {
+                if (p1X > p1Y) {
+                    pCoordinate = new RealPoint(p1X - r, p1Y);
+                } else {
+                    pCoordinate = new RealPoint(p2X - r, p2Y);
+                }
+            } else if (p1X < 0 && p1Y > 0) {
+                if (p1X > p1Y) {
+                    pCoordinate = new RealPoint(p1X - r, p1Y + r);
+                } else {
+                    pCoordinate = new RealPoint(p1X, p1Y + r);
+                }
+            } else if (p1X < 0 && p1Y < 0) {
+                if (p1X > p1Y) {
+                    pCoordinate = new RealPoint(p2X, p2Y + r);
+                } else {
+                    pCoordinate = new RealPoint(p1X, p1Y + r);
+                }
+            } else if (p1X > 0 && p1Y < 0) {
+                if (p1X > p1Y) {
+                    pCoordinate = new RealPoint(p2X - r * 0.7, p2Y + r * 1.9);
+                } else {
+                    pCoordinate = new RealPoint(p1X - r, p1Y + r);
+                }
+            }
+
+            ArcInfo p = new ArcInfo((sc.r2s(pCoordinate)).getX(), (sc.r2s(pCoordinate)).getY(), (int) (2 * r * sc.getScreenWidth() / sc.getRealWidth()), (int) (2 * r * sc.getScreenHeight() / sc.getRealHeight()), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
             ad.drawArc(p);
         }
         for (int i = 1; i <= mX.size(); i = i + 2) {
@@ -148,19 +186,5 @@ public class RoundedPolygon {
 
     }
 
-    public ArrayList<RealPoint> getTops() {
-        return tops;
-    }
 
-    public void setTops(ArrayList<RealPoint> tops) {
-        this.tops = tops;
-    }
-
-    public double getR() {
-        return r;
-    }
-
-    public void setR(double r) {
-        this.r = r;
-    }
 }
