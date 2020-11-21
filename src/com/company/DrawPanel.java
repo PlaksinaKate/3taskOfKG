@@ -4,10 +4,7 @@ import com.company.arc.Arc;
 import com.company.arc.ArcDrawer;
 import com.company.arc.GraphicsArcDrawer;
 import com.company.figure.RoundedPolygon;
-import com.company.line.DDALineDrawer;
-import com.company.line.Line;
-import com.company.line.LineDrawer;
-import com.company.line.WuLineDrawer;
+import com.company.line.*;
 import com.company.pixel.BufferedImagePixelDrawer;
 import com.company.pixel.PixelDrawer;
 
@@ -19,7 +16,9 @@ import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class DrawPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
+import static java.lang.Double.MAX_VALUE;
+
+public class DrawPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, OtherFrame.RoundedPolygonReadyListener {
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4, 800, 600);
 
     private Line xAxis = new Line(sc.getCornerX() - sc.getScreenWidth(), 0, sc.getScreenWidth(), 0);
@@ -52,36 +51,31 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
         PixelDrawer pd = new BufferedImagePixelDrawer(bi);
 
-        LineDrawer ld = new WuLineDrawer(pd);
+        LineDrawer ld = new BresenhamLineDrawer(pd);
         drawLine(ld, xAxis);
         drawLine(ld, yAxis);
+
+        drawSegments(gr);
 
         for (Line l : allLines) {
             drawLine(ld, l);
         }
-
         if (currentNewLine != null) {
             drawLine(ld, currentNewLine);
         }
 
-        drawSegments(gr);
 
+        g2d.setColor(Color.BLACK);
+        ArcDrawer ad = new GraphicsArcDrawer(gr);
 
-//        g2d.setColor(Color.BLUE);
-//        ArcDrawer ad = new GraphicsArcDrawer(gr);
-//        RoundedPolygon rp = new RoundedPolygon();
-//        //rp.drawRoundedPolygon(sc, ld, ad, coordinates);
-//        rp.drawRoundedPolygon(sc, ld, ad);
+        for (RoundedPolygon roundedP : allRP) {
+            roundedP.drawRoundedPolygon(sc, ld, ad);
+        }
+        if (currentNewRoundedPolygon != null) {
+            currentNewRoundedPolygon.drawRoundedPolygon(sc, ld, ad);
+        }
+
         gr.dispose();
-
-//        for (RoundedPolygon roundedP : allRP) {
-//            rp.drawRoundedPolygon(sc, ld, ad, coordinates);
-//        }
-//        if (currentNewRoundedPolygon != null) {
-//            rp.drawRoundedPolygon(sc, ld, ad);
-//        }
-
-
         g.drawImage(bi, 0, 0, null);
     }
 
@@ -130,16 +124,23 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (coordinates.isEmpty()) {
-            coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-        } else {
-            RealPoint prev = coordinates.get(coordinates.size() - 1);
-            currentNewLine = new Line(prev, sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-            coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (coordinates.isEmpty() || currentNewLine == null) {
+                coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+            } else {
+                if ((sc.s2r(new ScreenPoint(e.getX(), e.getY())).getX() >= (coordinates.get(0).getX() - 0.2) && sc.s2r(new ScreenPoint(e.getX(), e.getY())).getX() <= (coordinates.get(0).getX() + 0.2)) && (sc.s2r(new ScreenPoint(e.getX(), e.getY())).getY() >= (coordinates.get(0).getY() - 0.2) && sc.s2r(new ScreenPoint(e.getX(), e.getY())).getY() <= (coordinates.get(0).getY() + 0.2))) {
+                    currentNewLine = new Line(coordinates.get(coordinates.size() - 1), coordinates.get(0));
+                } else {
+                    RealPoint prev = coordinates.get(coordinates.size() - 1);
+                    currentNewLine = new Line(prev, sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+                    coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+                }
+                allLines.add(currentNewLine);
+            }
         }
-//        RealPoint last = coordinates.get(coordinates.size() - 1);
-//        RealPoint first = coordinates.get(1);
-//        currentNewLine = new Line(last, first);
+        if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2) {
+            EditAction();
+        }
         repaint();
     }
 
@@ -147,9 +148,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON3)
             lastPosition = new ScreenPoint(e.getX(), e.getY());
-//        } else if (e.getButton() == MouseEvent.BUTTON1) {
-//            currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())), sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-//        }
         repaint();
     }
 
@@ -158,7 +156,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = null;
         } else if (e.getButton() == MouseEvent.BUTTON1) {
-            allLines.add(currentNewLine);
             currentNewLine = null;
         }
         repaint();
@@ -215,4 +212,44 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         sc.setRealHeight(sc.getRealHeight() * scale);
         repaint();
     }
+
+    @Override
+    public void created(RoundedPolygon rp) {
+        allRP.add(rp);
+    }
+
+    void EditAction() {
+        OtherFrame dialog = new OtherFrame();
+        dialog.setReadyListener(this);
+        dialog.setTitle("Радиус");
+        dialog.setLocation(500, 150);
+        JLabel r = new JLabel("Введите радиус");
+        r.setBounds(10, 30, 100, 40);
+        dialog.add(r);
+
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, MAX_VALUE, 0.1));
+        spinner.setBounds(150, 30, 100, 40);
+        dialog.add(spinner);
+
+        JButton b = new JButton();
+        b.setText("Отрисовать скругленный многоугольник");
+        b.setBounds(0, 95, 300, 50);
+        b.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                double r = (double) spinner.getValue();
+                currentNewRoundedPolygon = new RoundedPolygon(coordinates, r);
+                allRP.add(currentNewRoundedPolygon);
+                currentNewLine = null;
+                allLines.clear();
+                repaint();
+            }
+        });
+        dialog.add(b);
+        dialog.setLayout(null);
+        dialog.setSize(300, 200);
+        dialog.setVisible(true);
+        //allRP.remove(currentNewRoundedPolygon);
+    }
+
+
 }

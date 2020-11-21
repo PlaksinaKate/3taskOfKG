@@ -10,10 +10,6 @@ public class Arc {
         this.p = p;
     }
 
-//    public Arc(double x, double y, double width, double height, double startAngle, double arcAngle) {
-//        p = new RealPoint(x, y, width, height, startAngle, arcAngle);
-//    }
-
     public RealPoint getP() {
         return p;
     }

@@ -23,11 +23,4 @@ public class GraphicsArcDrawer implements ArcDrawer {
         g.drawArc(x, y, width, height, startAngle, arcAngle);
     }
 
-//    @Override
-//    public void drawArc(ScreenPoint p, int width, int height, int startAngle, int arcAngle) {
-//        int x=p.getX();
-//        int y=p.getY();
-//        g.setColor(Color.BLUE);
-//        g.drawArc( x, y, width, height, startAngle, arcAngle);
-//    }
 }
