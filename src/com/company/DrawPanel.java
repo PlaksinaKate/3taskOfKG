@@ -15,6 +15,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.Double.MAX_VALUE;
 
@@ -31,6 +33,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     private ArrayList<RoundedPolygon> allRP = new ArrayList<>();
     private RoundedPolygon currentNewRoundedPolygon = null;
+    private Map<Integer, ArrayList<RealPoint>> tops = new HashMap();
+    private int count = 0;
 
     public DrawPanel() {
         this.addMouseMotionListener(this);
@@ -68,6 +72,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         g2d.setColor(Color.BLACK);
         ArcDrawer ad = new GraphicsArcDrawer(gr);
 
+        drawCirclePoint(gr);
+
         for (RoundedPolygon roundedP : allRP) {
             roundedP.drawRoundedPolygon(sc, ld, ad);
         }
@@ -75,8 +81,21 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             currentNewRoundedPolygon.drawRoundedPolygon(sc, ld, ad);
         }
 
+
         gr.dispose();
         g.drawImage(bi, 0, 0, null);
+    }
+
+    private void drawCirclePoint(Graphics g2d) {
+        g2d.setColor(Color.BLACK);
+        int temp = 0;
+        for (Map.Entry<Integer, ArrayList<RealPoint>> circle : tops.entrySet()) {
+            while (temp != circle.getValue().size()) {
+                g2d.drawOval((int) (sc.r2s(circle.getValue().get(temp)).getX() - 0.05 / 2), (int) (sc.r2s(circle.getValue().get(temp)).getY() + 0.05 / 2), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()));
+                temp++;
+            }
+            temp = 0;
+        }
     }
 
 
@@ -85,7 +104,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     private void drawSegments(Graphics g) {
-        g.setColor(Color.BLUE);
+        g.setColor(Color.BLACK);
         double step = sc.getRealWidth() / 4;
         for (double x = 0; x <= sc.getRealWidth() + Math.abs(sc.getScreenWidth()); x += step) {
             ScreenPoint point = sc.r2s(new RealPoint(x, 0));
@@ -125,7 +144,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            if (coordinates.isEmpty() || currentNewLine == null) {
+            if (coordinates.isEmpty()) {
                 coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
             } else {
                 if ((sc.s2r(new ScreenPoint(e.getX(), e.getY())).getX() >= (coordinates.get(0).getX() - 0.2) && sc.s2r(new ScreenPoint(e.getX(), e.getY())).getX() <= (coordinates.get(0).getX() + 0.2)) && (sc.s2r(new ScreenPoint(e.getX(), e.getY())).getY() >= (coordinates.get(0).getY() - 0.2) && sc.s2r(new ScreenPoint(e.getX(), e.getY())).getY() <= (coordinates.get(0).getY() + 0.2))) {
@@ -135,19 +154,74 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                     currentNewLine = new Line(prev, sc.s2r(new ScreenPoint(e.getX(), e.getY())));
                     coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
                 }
-                allLines.add(currentNewLine);
+                currentNewRoundedPolygon = new RoundedPolygon(coordinates, 0);
+                //allRP.add(currentNewRoundedPolygon);
             }
         }
-        if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2) {
-            EditAction();
+//        boolean check;
+//        int maxY = 0;
+//        int minY = 0;
+//        for (int i = 1; i < coordinates.size(); i++) {
+//            if (coordinates.get(i).getY() > coordinates.get(maxY).getY())
+//                maxY = i;
+//
+//
+//            if (coordinates.get(i).getY() < coordinates.get(minY).getY())
+//                minY = i;
+//        }
+//
+//        for (int i = sc.r2s(coordinates.get(maxY)).getY(); i <= sc.r2s(coordinates.get(minY)).getY(); i++) {
+//
+//        }
+        ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
+        for (RoundedPolygon rp : allRP) {
+            if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2 && rp.checkInside(new RealPoint(sc.s2r(sp).getX(), sc.s2r(sp).getY()))) {
+                EditAction(rp);
+            }
         }
+//        if (e.getButton() == MouseEvent.BUTTON3) {
+//            EditAction();
+//        }
         repaint();
     }
+
+    private int j, temp1;
+    private boolean check;
 
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON3)
             lastPosition = new ScreenPoint(e.getX(), e.getY());
+
+        ScreenPoint currentPosition = new ScreenPoint(e.getX(), e.getY());
+        check = false;
+        int r = (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth());
+        int temp = 0;
+        for (int i = 1; i <= tops.size(); i++) {
+            while (temp != tops.get(i).size()) {
+                RealPoint topsPoint = new RealPoint(tops.get(i).get(temp).getX(), tops.get(i).get(temp).getY());
+                ScreenPoint topsScreenPoint = new ScreenPoint(sc.r2s(topsPoint).getX(), sc.r2s(topsPoint).getY());
+                if (e.getButton() == MouseEvent.BUTTON1 && currentPosition.getX() >= (topsScreenPoint.getX() - r) && currentPosition.getX() <= (topsScreenPoint.getX() + r) && currentPosition.getY() <= (topsScreenPoint.getY() + r) && currentPosition.getY() >= (topsScreenPoint.getY() - r)) {
+                    //                        //lastPosition = sc.r2s(tops.getValue().get(temp));
+//                        ScreenPoint deltaScreen2 = new ScreenPoint(currentPosition.getX() - lastPosition.getX(), currentPosition.getY() - lastPosition.getY());
+//
+//                        RealPoint deltaReal2 = sc.s2r(deltaScreen2);
+//                        RealPoint zeroReal2 = sc.s2r(new ScreenPoint(0, 0));
+//
+//                        RealPoint vector2 = new RealPoint(deltaReal2.getX() - zeroReal2.getX(), deltaReal2.getY() - zeroReal2.getY());
+//                        sc.setCornerX(sc.getCornerX() - vector2.getX());
+//                        sc.setCornerY(sc.getCornerY() - vector2.getY());
+// в экранных координатах
+                    check = true;
+                    j = i;
+                    temp1 = temp;
+
+                }
+                temp++;
+            }
+            temp = 0;
+        }
+
         repaint();
     }
 
@@ -155,8 +229,17 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = null;
+            if (currentNewRoundedPolygon != null) {
+                allRP.add(currentNewRoundedPolygon);
+                currentNewRoundedPolygon = null;
+            }
         } else if (e.getButton() == MouseEvent.BUTTON1) {
-            currentNewLine = null;
+            if (check) {
+                ScreenPoint currentPosition = new ScreenPoint(e.getX(), e.getY());
+                tops.get(j).get(temp1).setX(sc.s2r(currentPosition).getX());
+                tops.get(j).get(temp1).setY(sc.s2r(currentPosition).getY());
+
+            }
         }
         repaint();
     }
@@ -174,7 +257,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mouseDragged(MouseEvent e) {
         ScreenPoint currentPosition = new ScreenPoint(e.getX(), e.getY());
-
         if (lastPosition != null) {
             ScreenPoint deltaScreen = new ScreenPoint(currentPosition.getX() - lastPosition.getX(), currentPosition.getY() - lastPosition.getY());
 
@@ -187,11 +269,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             sc.setCornerY(sc.getCornerY() - vector.getY());
             lastPosition = currentPosition;
         }
-
-        if (currentNewLine != null) {
-            currentNewLine.setP2(sc.s2r(currentPosition));
-        }
-
         repaint();
     }
 
@@ -202,6 +279,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+
         int clicks = e.getWheelRotation();
         double scale = 1;
         double coef = clicks < 0 ? 1.1 : 0.9;
@@ -218,7 +296,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         allRP.add(rp);
     }
 
-    void EditAction() {
+    void EditAction(RoundedPolygon rp) {
         OtherFrame dialog = new OtherFrame();
         dialog.setReadyListener(this);
         dialog.setTitle("Радиус");
@@ -227,7 +305,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         r.setBounds(10, 30, 100, 40);
         dialog.add(r);
 
-        JSpinner spinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, MAX_VALUE, 0.1));
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(0.1, 0.0, MAX_VALUE, 0.1));
         spinner.setBounds(150, 30, 100, 40);
         dialog.add(spinner);
 
@@ -237,10 +315,46 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         b.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 double r = (double) spinner.getValue();
-                currentNewRoundedPolygon = new RoundedPolygon(coordinates, r);
-                allRP.add(currentNewRoundedPolygon);
+                if (coordinates.size() == 0) {
+                    boolean result = false;
+                    for (int i = 1; i <= tops.size(); i++) {
+                        if (rp.getTops().size() == tops.get(i).size()) {
+                            for (int j = 0; j < tops.get(i).size(); j++) {
+                                if (rp.getTops().get(j) == tops.get(i).get(j)) {
+                                    result = true;
+                                }
+                            }
+                            if (result) {
+                                allRP.remove(allRP.get(i - 1));
+                                currentNewRoundedPolygon = new RoundedPolygon(tops.get(i), r);
+                                allRP.add(i - 1, currentNewRoundedPolygon);
+                                break;
+                            }
+                        }
+                    }
+//                    currentNewRoundedPolygon = new RoundedPolygon(tops.get(tops.), r);
+//                    allRP.remove();
+//                    allRP.add(currentNewRoundedPolygon);
+////                    for (RoundedPolygon rp:allRP) {
+////                        for (int i = 0; i < tops.size(); i++) {
+////                            if(rp.checkInside(new RealPoint(rp.getTops().get(0).getX(),rp.getTops().get(0).getY()))){
+////
+////                            }
+////
+////                        }
+////                    }
+
+                } else {
+                    count++;
+                    allRP.remove(allRP.size() - 1);
+                    tops.put(count, new ArrayList<>(coordinates));
+                    coordinates.clear();
+                    currentNewRoundedPolygon = new RoundedPolygon(tops.get(count), r);
+                    allRP.add(currentNewRoundedPolygon);
+                }
+                currentNewRoundedPolygon = null;
                 currentNewLine = null;
-                allLines.clear();
+                dialog.dispose();
                 repaint();
             }
         });
@@ -248,7 +362,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         dialog.setLayout(null);
         dialog.setSize(300, 200);
         dialog.setVisible(true);
-        //allRP.remove(currentNewRoundedPolygon);
+//        if (currentNewRoundedPolygon.getR() == 0)
+//            allRP.remove(currentNewRoundedPolygon);
     }
 
 

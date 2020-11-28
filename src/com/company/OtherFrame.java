@@ -32,9 +32,10 @@ public class OtherFrame extends JFrame {
         listener = l;
     }
 
-    public void onClick() {
-        if (listener != null) {
-            listener.created(getRoundedPolygon());
-        }
-    }
+//    public void onClick() {
+//        if (listener != null) {
+//            listener.created(getRoundedPolygon());
+//        }
+//        dispose();
+//    }
 }
