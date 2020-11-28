@@ -14,6 +14,8 @@ import java.util.Map;
 public class RoundedPolygon {
     ArrayList<RealPoint> tops;
     double r;
+    double r2;
+    boolean check;
 
     public RoundedPolygon(ArrayList<RealPoint> tops, double r) {
         this.tops = tops;
@@ -21,7 +23,7 @@ public class RoundedPolygon {
     }
 
     public void drawRoundedPolygon(ScreenConverter sc, LineDrawer ld, ArcDrawer ad) {
-
+        check = false;
         Map<Integer, RealPoint> points = new HashMap<>();
         int count = 0;
         if (tops.size() > 1) {
@@ -76,7 +78,12 @@ public class RoundedPolygon {
 
                 if (segment > length) {
                     segment = length;
+                    r2 = r;
                     r = length * Math.abs(Math.tan(angle));
+                    check = true;
+                }
+                if (!check && r2 != 0) {
+                    r = r2;
                 }
 
                 double p1X = x2 - dx1 * segment / length1;
@@ -135,7 +142,6 @@ public class RoundedPolygon {
                 ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
             }
         }
-
     }
 
     public ArrayList<RealPoint> getTops() {

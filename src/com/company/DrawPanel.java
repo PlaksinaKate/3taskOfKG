@@ -75,6 +75,9 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         drawCirclePoint(gr);
 
         for (RoundedPolygon roundedP : allRP) {
+//            if (roundedP.getR() < radius) {
+//                roundedP.setR(radius);
+//            }
             roundedP.drawRoundedPolygon(sc, ld, ad);
         }
         if (currentNewRoundedPolygon != null) {
@@ -91,7 +94,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         int temp = 0;
         for (Map.Entry<Integer, ArrayList<RealPoint>> circle : tops.entrySet()) {
             while (temp != circle.getValue().size()) {
-                g2d.drawOval((int) (sc.r2s(circle.getValue().get(temp)).getX() - 0.05 / 2), (int) (sc.r2s(circle.getValue().get(temp)).getY() + 0.05 / 2), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()));
+                g2d.drawOval((int) (sc.r2s(circle.getValue().get(temp)).getX() - 1), (int) (sc.r2s(circle.getValue().get(temp)).getY() + 1), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()));
                 temp++;
             }
             temp = 0;
@@ -234,12 +237,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 currentNewRoundedPolygon = null;
             }
         } else if (e.getButton() == MouseEvent.BUTTON1) {
-            if (check) {
-                ScreenPoint currentPosition = new ScreenPoint(e.getX(), e.getY());
-                tops.get(j).get(temp1).setX(sc.s2r(currentPosition).getX());
-                tops.get(j).get(temp1).setY(sc.s2r(currentPosition).getY());
-
-            }
+            check = false;
         }
         repaint();
     }
@@ -269,6 +267,11 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             sc.setCornerY(sc.getCornerY() - vector.getY());
             lastPosition = currentPosition;
         }
+        if (check) {
+            tops.get(j).get(temp1).setX(sc.s2r(currentPosition).getX());
+            tops.get(j).get(temp1).setY(sc.s2r(currentPosition).getY());
+        }
+
         repaint();
     }
 
@@ -296,6 +299,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         allRP.add(rp);
     }
 
+    private double radius = 0;
+
     void EditAction(RoundedPolygon rp) {
         OtherFrame dialog = new OtherFrame();
         dialog.setReadyListener(this);
@@ -314,7 +319,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         b.setBounds(0, 95, 300, 50);
         b.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                double r = (double) spinner.getValue();
+                radius = (double) spinner.getValue();
                 if (coordinates.size() == 0) {
                     boolean result = false;
                     for (int i = 1; i <= tops.size(); i++) {
@@ -326,7 +331,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                             }
                             if (result) {
                                 allRP.remove(allRP.get(i - 1));
-                                currentNewRoundedPolygon = new RoundedPolygon(tops.get(i), r);
+                                currentNewRoundedPolygon = new RoundedPolygon(tops.get(i), radius);
                                 allRP.add(i - 1, currentNewRoundedPolygon);
                                 break;
                             }
@@ -349,7 +354,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                     allRP.remove(allRP.size() - 1);
                     tops.put(count, new ArrayList<>(coordinates));
                     coordinates.clear();
-                    currentNewRoundedPolygon = new RoundedPolygon(tops.get(count), r);
+                    currentNewRoundedPolygon = new RoundedPolygon(tops.get(count), radius);
                     allRP.add(currentNewRoundedPolygon);
                 }
                 currentNewRoundedPolygon = null;
