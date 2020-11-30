@@ -75,13 +75,11 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         drawCirclePoint(gr);
 
         for (RoundedPolygon roundedP : allRP) {
-//            if (roundedP.getR() < radius) {
-//                roundedP.setR(radius);
-//            }
             roundedP.drawRoundedPolygon(sc, ld, ad);
         }
         if (currentNewRoundedPolygon != null) {
             currentNewRoundedPolygon.drawRoundedPolygon(sc, ld, ad);
+
         }
 
 
@@ -90,11 +88,12 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     private void drawCirclePoint(Graphics g2d) {
+        RealPoint realPoint = new RealPoint(0.05, 0.05);
         g2d.setColor(Color.BLACK);
         int temp = 0;
         for (Map.Entry<Integer, ArrayList<RealPoint>> circle : tops.entrySet()) {
             while (temp != circle.getValue().size()) {
-                g2d.drawOval((int) (sc.r2s(circle.getValue().get(temp)).getX() - 1), (int) (sc.r2s(circle.getValue().get(temp)).getY() + 1), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()));
+                g2d.drawOval((int) (sc.r2s(circle.getValue().get(temp)).getX() - 0.025 * sc.getScreenWidth() /  sc.getRealWidth()), (int) (sc.r2s(circle.getValue().get(temp)).getY() - 0.025 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()), (int) (0.05 * sc.getScreenWidth() / sc.getRealWidth()));
                 temp++;
             }
             temp = 0;
@@ -158,33 +157,15 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                     coordinates.add(sc.s2r(new ScreenPoint(e.getX(), e.getY())));
                 }
                 currentNewRoundedPolygon = new RoundedPolygon(coordinates, 0);
-                //allRP.add(currentNewRoundedPolygon);
             }
         }
-//        boolean check;
-//        int maxY = 0;
-//        int minY = 0;
-//        for (int i = 1; i < coordinates.size(); i++) {
-//            if (coordinates.get(i).getY() > coordinates.get(maxY).getY())
-//                maxY = i;
-//
-//
-//            if (coordinates.get(i).getY() < coordinates.get(minY).getY())
-//                minY = i;
-//        }
-//
-//        for (int i = sc.r2s(coordinates.get(maxY)).getY(); i <= sc.r2s(coordinates.get(minY)).getY(); i++) {
-//
-//        }
+
         ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
         for (RoundedPolygon rp : allRP) {
             if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2 && rp.checkInside(new RealPoint(sc.s2r(sp).getX(), sc.s2r(sp).getY()))) {
                 EditAction(rp);
             }
         }
-//        if (e.getButton() == MouseEvent.BUTTON3) {
-//            EditAction();
-//        }
         repaint();
     }
 
@@ -205,16 +186,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 RealPoint topsPoint = new RealPoint(tops.get(i).get(temp).getX(), tops.get(i).get(temp).getY());
                 ScreenPoint topsScreenPoint = new ScreenPoint(sc.r2s(topsPoint).getX(), sc.r2s(topsPoint).getY());
                 if (e.getButton() == MouseEvent.BUTTON1 && currentPosition.getX() >= (topsScreenPoint.getX() - r) && currentPosition.getX() <= (topsScreenPoint.getX() + r) && currentPosition.getY() <= (topsScreenPoint.getY() + r) && currentPosition.getY() >= (topsScreenPoint.getY() - r)) {
-                    //                        //lastPosition = sc.r2s(tops.getValue().get(temp));
-//                        ScreenPoint deltaScreen2 = new ScreenPoint(currentPosition.getX() - lastPosition.getX(), currentPosition.getY() - lastPosition.getY());
-//
-//                        RealPoint deltaReal2 = sc.s2r(deltaScreen2);
-//                        RealPoint zeroReal2 = sc.s2r(new ScreenPoint(0, 0));
-//
-//                        RealPoint vector2 = new RealPoint(deltaReal2.getX() - zeroReal2.getX(), deltaReal2.getY() - zeroReal2.getY());
-//                        sc.setCornerX(sc.getCornerX() - vector2.getX());
-//                        sc.setCornerY(sc.getCornerY() - vector2.getY());
-// в экранных координатах
                     check = true;
                     j = i;
                     temp1 = temp;
