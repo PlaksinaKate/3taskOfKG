@@ -14,7 +14,6 @@ import java.util.Map;
 public class RoundedPolygon {
     ArrayList<RealPoint> tops;
     double r;
-    double r2;
     boolean check;
 
     public RoundedPolygon(ArrayList<RealPoint> tops, double r) {
@@ -35,7 +34,7 @@ public class RoundedPolygon {
                 double y2;
                 double x3;
                 double y3;
-
+                double r2 = r;
                 if (i == 0) {
                     x1 = tops.get(tops.size() - 1).getX();
                     y1 = tops.get(tops.size() - 1).getY();
@@ -43,7 +42,7 @@ public class RoundedPolygon {
                     y2 = tops.get(i).getY();
                     x3 = tops.get(i + 1).getX();
                     y3 = tops.get(i + 1).getY();
-                    r2 = r;
+
                 } else if (i == tops.size() - 1) {
                     x1 = tops.get(i - 1).getX();
                     y1 = tops.get(i - 1).getY();
@@ -69,7 +68,7 @@ public class RoundedPolygon {
                 double angle = (Math.atan2(dy1, dx1) - Math.atan2(dy2, dx2)) / 2; // угол между прямыми
 
                 // длина отрезка между угловой точкой и точками пересечения с окружностью радиуса
-                double segment = r / Math.abs(Math.tan(angle));
+                double segment = r2 / Math.abs(Math.tan(angle));
 
                 // проверка длины сегмента и мин. длины прямых
                 double length1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
@@ -77,16 +76,13 @@ public class RoundedPolygon {
 
                 double length = Math.min(length1, length2);
 
+
+                //уменьшаем радиус, если длина сегмента больше минимальной длины отрезка
                 if (segment > length) {
                     segment = length;
-                    r = length * Math.abs(Math.tan(angle));
+                    r2 = length * Math.abs(Math.tan(angle));
                     check = true;
                 }
-//                } else {
-//                    if (r < r2)
-//                        r = r2;
-//                }
-
 
                 double p1X = x2 - dx1 * segment / length1;
                 double p1Y = y2 - dy1 * segment / length1;
@@ -105,7 +101,7 @@ public class RoundedPolygon {
                 double dy = y2 * 2 - p1Y - p2Y;
 
                 double l = Math.sqrt(dx * dx + dy * dy);
-                double d = Math.sqrt(segment * segment + r * r);
+                double d = Math.sqrt(segment * segment + r2 * r2);
 
                 double circlePointX = x2 - dx * d / l;
                 double circlePointY = y2 - dy * d / l;
@@ -126,10 +122,10 @@ public class RoundedPolygon {
                 }
 
 
-                double left = circlePointX - r;
-                double top = circlePointY + r;
+                double left = circlePointX - r2;
+                double top = circlePointY + r2;
                 RealPoint pCoordinate = new RealPoint(left, top);
-                ArcInfo p = new ArcInfo((sc.r2s(pCoordinate)).getX(), (sc.r2s(pCoordinate)).getY(), (int) (2 * r * sc.getScreenWidth() / sc.getRealWidth()), (int) (2 * r * sc.getScreenHeight() / sc.getRealHeight()), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
+                ArcInfo p = new ArcInfo((sc.r2s(pCoordinate)).getX(), (sc.r2s(pCoordinate)).getY(), (int) (2 * r2 * sc.getScreenWidth() / sc.getRealWidth()), (int) (2 * r2 * sc.getScreenHeight() / sc.getRealHeight()), (int) (startAngle * 180 / Math.PI), (int) (sweepAngle * 180 / Math.PI));
                 ad.drawArc(p);
 
             }
@@ -145,10 +141,11 @@ public class RoundedPolygon {
                 ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
             }
         }
-        if (r < r2) {
-            setR(r2);
-        }
+//        if (r < r2) {
+//            setR(r2);
+//        }
     }
+
     public ArrayList<RealPoint> getTops() {
         return tops;
     }
